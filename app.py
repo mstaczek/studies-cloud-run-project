@@ -54,7 +54,7 @@ async def predict(request: Request):
     ref = db.reference(f'/{"/".join(source_path.split("/")[:-1])}', url='https://ai-todo-list.firebaseio.com/')
     
     if ref.get() is not None and 'hasImage' in ref.get() and ref.get()['hasImage'] == 'processing':
-        print(f'Task: "{task_text}"; Image is already processing. Waiting 10minutes.')
+        print(f'Task: "{task_text}"; Image is already processing. Quitting.')
         return JSONResponse(content={'message': f"Task: '{task_text}'; Image generation has already begun, qutting."})
     
     if ref.get() is None or not 'hasImage' in ref.get():

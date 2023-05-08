@@ -1,0 +1,5 @@
+A sample curl request:
+1. 'ce-ref' = 'path/in/realtime/database' in header
+2. 'delta' = 'task text' in body 
+
+curl -X POST -H "ce-ref: tasks/somerandomuuid/234567890/task" -d '{"delta":"Find a pigeon"}' http://0.0.0.0:8080/predict

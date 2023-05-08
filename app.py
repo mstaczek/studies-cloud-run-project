@@ -54,12 +54,12 @@ async def predict(request: Request):
     ref = db.reference(f'/{"/".join(source_path.split("/")[:-1])}', url='https://ai-todo-list.firebaseio.com/')
     
     if ref.get() is not None and 'hasImage' in ref.get() and ref.get()['hasImage'] == 'processing':
-        print('Image is already processing. Waiting 10minutes.')
+        print(f'Task: "{task_text}"; Image is already processing. Waiting 10minutes.')
         for _ in range(10):
             sleep(60)
             if ref.get()['hasImage'] == True or ref.get()['hasImage'] == False:
-                return JSONResponse(content={'message': "Running image generation has finished. Skipping."})
-        return JSONResponse(content={'message': "Image has not been generated in the last 10 minutes by other process. Proceeding..."})
+                return JSONResponse(content={'message': f"Task: '{task_text}'; Running image generation has finished. Skipping."})
+        return JSONResponse(content={'message': f"Task: '{task_text}'; Image has not been generated in the last 10 minutes by other process. Proceeding..."})
     
     if ref.get() is None or not 'hasImage' in ref.get():
         ref = db.reference(f'/{"/".join(source_path.split("/")[:-1])}', url='https://ai-todo-list.firebaseio.com/')
@@ -68,23 +68,27 @@ async def predict(request: Request):
         })
 
     if ref.get() is not None and 'hasImage' in ref.get() and ref.get()['hasImage'] == True or ref.get()['hasImage'] == False:
-        print('Image already generated or previous generation failed with NSFW. Skipping.')
-        return JSONResponse(content={'message': "Image already generated. Skipping."})
+        print(f'Task: "{task_text}"; Image already generated or previous generation failed with NSFW. Skipping.')
+        return JSONResponse(content={'message': f"Task: '{task_text}'; Image already generated. Skipping."})
 
     # generating image from text
     prompt_value_tuned = f'Web icon for "{task_text}", simplistic, few colors, without text'
-    print(f'Prompt: {prompt_value_tuned}')
+    print(f'Task: "{task_text}"; Prompt: {prompt_value_tuned}')
     image, nsfw_generated = get_image_from_text([prompt_value_tuned], inference_steps=INFERENCE_STEPS, image_size=IMAGE_SIZE)
-    print(f'Image generated. NSFW: {nsfw_generated}.')
+    print(f'Task: "{task_text}"; Image generated. NSFW: {nsfw_generated}.')
 
     # if nsfw image generated, set hasImage to false and skip saving to storage bucket
     if nsfw_generated:
-        print('NSFW image generated. Not saving to storage bucket, setting hasImage to false.')
+        print(f'Task: "{task_text}"; NSFW image generated. Not saving to storage bucket, setting hasImage to false.')
         ref = db.reference(f'/{"/".join(source_path.split("/")[:-1])}', url='https://ai-todo-list.firebaseio.com/')
         ref.update({
             'hasImage' : False
         })
-        return JSONResponse(content={'message': "NSFW image generated. hasImage = False."})
+        return JSONResponse(content={'message': f"Task: '{task_text}'; NSFW image generated. hasImage = False."})
+
+    if ref.get() is None or 'hasImage' not in ref.get():
+        print(f'Task: "{task_text}"; Task is no longer present in the realtime database. not saving.')
+        return JSONResponse(content={'message': f"Task: '{task_text}'; Task is no longer present in the realtime database. not saving."})
 
     # saving image to storage bucket
     random_number = random.randint(0, 100000)
@@ -101,7 +105,8 @@ async def predict(request: Request):
     ref.update({
         'hasImage' : True
     })
-    return JSONResponse(content={'message': "New image generated successfully."})
+    print(f'Task: "{task_text}"; New image generated successfully.')
+    return JSONResponse(content={'message': f"Task: '{task_text}'; New image generated successfully."})
 
 if __name__ == '__main__':
     default_app = firebase_admin.initialize_app() 

@@ -29,11 +29,12 @@ def get_image_from_text(prompts_list, inference_steps=25, image_size=320):
         pipeline = DiffusionPipeline.from_pretrained("./stable-diffusion-v1-5", low_cpu_mem_usage=True)
         results = pipeline(prompts_list, num_inference_steps=inference_steps, height=image_size, width=image_size)
     except:
-        print('NSFW content detected, please try again with a different prompt')
+        print('An error has been caught.')
+        print('Replacing with NSFW image.')
         results = {'nsfw_content_detected': [True], 'images': ['NSFW content detected, please try again with a different prompt']}
 
     results = replace_nsfw_images_with_rainbow(results, image_size)
-    return results['images']
+    return results['images'][0], results['nsfw_content_detected'][0]
 
 # example
 #images_list = get_image_from_text(["paint a picture of a cloud in the sky"])

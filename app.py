@@ -13,7 +13,7 @@ from firebase_admin import db
 from time import sleep
 
 
-INFERENCE_STEPS = 25
+INFERENCE_STEPS = 50
 IMAGE_SIZE = 320
 
 

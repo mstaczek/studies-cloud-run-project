@@ -28,4 +28,4 @@ Cloud Run instance with 16GB RAM and 4 CPU needs 9.2 minutes for the same image.
 
 App: https://ai-todo-list.web.app/ (probably has been turned off by now)
 
-![App screenshot](https://github.com/mstaczek/studies-cloud-run-project/blob/main/image_2023-05-08_211953028.png)
+![App screenshot](https://github.com/mstaczek/studies-cloud-run-project/blob/main/sample_app_ui_screenshot.png)
